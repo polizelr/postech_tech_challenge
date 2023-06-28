@@ -1,2 +1,20 @@
-# postech_tech_challenge
-Relatório referente a dados de exportação de vinho
+# Relatório referente a dados de exportação de vinho
+
+
+## Criação do Ambiente Virtual
+
+pip install virtualenv
+
+virtualenv venv
+
+source venv/Scripts/activate
+
+
+## Instalação das Bibliotecas
+
+pip install -r .\requirements.txt 
+
+
+## Execução Local do Projeto
+
+streamlit run .\app.py
