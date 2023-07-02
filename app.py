@@ -15,9 +15,9 @@ pd.set_option('display.float_format', lambda x: '%.2f' % x)
 
 
 
-st.title('FIAPWine')
+st.title('Exportação de Vinhos - Análise e Insights')
 
-tab0, tab1, tab2, tab3, tab4 = st.tabs(["Dados de Exportação", "Dados Demográficos", "Dados Econômicos", "Dados Climáticos", "Análise Exploratória"])
+tab0, tab1, tab2, tab3, tab4 = st.tabs(["Home", "Dados Demográficos", "Dados Econômicos", "Dados Climáticos", "Análise Exploratória"])
 
 with tab0:
     '''
@@ -25,7 +25,7 @@ with tab0:
     '''
     df_dados_exportacao = pd.read_csv('./dados/tabela_final.csv')
     df = pd.DataFrame(df_dados_exportacao)
-    st.dataframe(df, use_container_width=True)
+    st.dataframe(df, use_container_width=True, hide_index=True)
     
     
 with tab1:
@@ -285,9 +285,31 @@ with tab3:
     '''
     
 with tab4:
+    #Dados
+    
+    #Base
+    df_exportacao = pd.read_csv('./dados/df_exportacao.csv')
+    
+    #Group ano
+    df_group_exportacao_ano = df_exportacao.groupby('Year')[['Quantity (KG)', 'Value (US)']]
+    desc_stats_ano = df_group_exportacao_ano.describe()
+    
+    #Group país
+    df_group_exportacao_pais = df_exportacao.groupby('Country Name')[['Quantity (KG)', 'Value (US)']]
+    desc_stats_pais = df_group_exportacao_pais.describe()
+    
+    #Ano
+    df_exportacao_ano = pd.read_csv('./dados/df_exportacao_ano.csv')
+    
+    #País
+    df_exportacao_pais = pd.read_csv('./dados/df_exportacao_pais.csv')
+    df_exportacao_pais_top_10_qtd_sorted = df_exportacao_pais.sort_values(by='Quantity (KG)', ascending=False)
+    df_exportacao_pais_top_10_valor_sorted = df_exportacao_pais.sort_values(by='Value (US)', ascending=False)
+    df_exportacao_pais_top_x = pd.read_csv('./dados/df_exportacao_pais_top_x.csv')
+    
     '''
     ## Análise Exploratória
-    _Esta análise tem um viés técnico e é indicada para quem buscar entender melhor o workflow de trabalho seguido para encontrar os insights já apresentados_
+    _Esta análise possui um viés técnico e é indicada para quem busca entender o workflow de trabalho seguido para encontrar os insights apresentados nas seções anteriores_
     
     Com o objetivo de realizar prospecções interessantes para a empresa e entender os mercados mais fortes para se posicionar, o primeiro passo realizado pela equipe foi o aprofundamento nas bases de dados brasileiras relativas a vinho.
     
@@ -295,5 +317,293 @@ with tab4:
     
     http://vitibrasil.cnpuv.embrapa.br/index.php?opcao=opt_01
     
+    O foco é o mercado externo, então as análises foram feitas em cimas do dataset de exportação. Foram filtrados os dados entre 2007 e 2021. Além disso, devido a grande variedade de países disponíveis, a análise concentrou-se nos Top X País Importadores, isto é, o Top 10 países por quantidade e o Top 10 países por valor.
     
+    ### Estatísticas Descritivas
+    
+    Inicialmente, analisou-se as estatísticas descritivas dos dados, com destaque para algumas métricas por ano e por país.
+    
+    #### Ano
+    '''
+    is_exibir_desc_stats_ano = st.checkbox('Estatísticas Descritivas - Ano')
+    if is_exibir_desc_stats_ano:
+        st.table(desc_stats_ano)
+        csv = df_pib_paises_avg_30k_not_exp.to_csv(index=False)
+        st.download_button(label='Download Estatísticas Descritivas - Ano (CSV)', data=csv, file_name='desc_stats_ano.csv', mime='text/csv')
+    
+    
+    '''
+    #### País
+    '''
+    is_exibir_desc_stats_pais = st.checkbox('Estatísticas Descritivas - País')
+    if is_exibir_desc_stats_pais:
+        st.table(desc_stats_pais)
+        csv = df_pib_paises_avg_30k_not_exp.to_csv(index=False)
+        st.download_button(label='Download Estatísticas Descritivas - País (CSV)', data=csv, file_name='desc_stats_pais.csv', mime='text/csv')
+    
+    
+    '''
+    ### Distribuição das Quantidades e Valores
+    
+    Após, buscou-se entender como era a distruição das quantidades e dos valores. Analisando os dados sem nenhuma agregação, os mesmos não indicaram tantos padrões, mas ao agregar por ano e país, alguns destaques já podiam ser observados.
+    
+    ### Ano
+    Tanto em valor quanto em quantidade, encontram-se algumas frequências até 10 milhões, mas em ambos o que se destaca é um outlier, demonstrado bem a direita o que dificuldade a análise da distribuição dos dados.
+    '''
+    
+    #Valor
+    fig, ax = plt.subplots(figsize=(15, 10))
+
+    # Plotar o histograma
+    plt.hist(df_exportacao_ano['Value (US)'], bins=10)
+
+    # Ajustar a formatação dos rótulos do eixo y
+    plt.ticklabel_format(style='plain', axis='x')
+
+    # Adicionar rótulos e título
+    plt.xlabel('Valor (US)')
+    plt.ylabel('Frequência - Ano')
+    plt.title('Distribuição dos Valores - Agrupado por Ano')
+
+    # Exibir o histograma
+    st.pyplot(fig)
+    
+    
+    
+    #Quantidade
+    fig, ax = plt.subplots(figsize=(15, 10))
+    # Plotar o histograma
+    plt.hist(df_exportacao_ano['Quantity (KG)'], bins=10)
+
+    # Ajustar a formatação dos rótulos do eixo y
+    plt.ticklabel_format(style='plain', axis='x')
+
+    # Adicionar rótulos e título
+    plt.xlabel('Quantidade (KG)')
+    plt.ylabel('Frequência - Ano')
+    plt.title('Distribuição das Quantidades - Agrupado por Ano')
+
+    # Exibir o histograma
+    st.pyplot(fig)
+    
+    
+    '''
+    ### País
+    A análise por país corrobora com a distribuição previamente vista, mostrando que existem 2 países que se destacam dos demais, tanto em quantidade como em valor.
+    '''
+    
+    #Valor
+    fig, ax = plt.subplots(figsize=(15, 10))
+
+    # Plotar o histograma
+    plt.hist(df_exportacao_pais['Value (US)'], bins=10)
+
+    # Ajustar a formatação dos rótulos do eixo y
+    plt.ticklabel_format(style='plain', axis='x')
+
+    # Adicionar rótulos e título
+    plt.xlabel('Valor (US)')
+    plt.ylabel('Frequência - País')
+    plt.title('Distribuição dos Valores - Agrupado por País')
+
+    # Exibir o histograma
+    st.pyplot(fig)
+    
+    
+    
+    #Quantidade
+    fig, ax = plt.subplots(figsize=(15, 10))
+
+    # Plotar o histograma
+    plt.hist(df_exportacao_pais['Quantity (KG)'], bins=10)
+
+    # Ajustar a formatação dos rótulos do eixo y
+    plt.ticklabel_format(style='plain', axis='x')
+
+    # Adicionar rótulos e título
+    plt.xlabel('Quantidade (KG)')
+    plt.ylabel('Frequência - País')
+    plt.title('Distribuição das Quantidades - Agrupado por País')
+
+    # Exibir o histograma
+    st.pyplot(fig)
+    
+    '''
+    ### Análise Temporal
+    Neste ponto, é muito importante ver como os dados estão distribuídos ao longo do tempo.   
+    '''
+    
+    # Criando uma paleta categórica com inversão de tons
+    custom_palette = sns.color_palette("Blues", n_colors=len(df_exportacao_ano))
+    
+    
+    #Valor
+    fig, ax = plt.subplots(figsize=(15, 10))
+
+    # Plotar a evolução do valor ao longo do tempo
+    ax = sns.barplot(data=df_exportacao_ano, x='Year', y='Value (US)', hue='Value (US)', palette=custom_palette, dodge=False)
+    ax.legend_.remove()  # Remover a legenda do hue
+    plt.xlabel('Ano')
+    plt.ylabel('Valor (US)')
+    plt.title('Evolução do Valor ao Longo do Tempo')
+
+    # Remover a notação científica dos valores nos eixos
+    plt.gca().get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, _: '{:,.0f}'.format(x)))
+
+    # Encontrar o maior valor no eixo y
+    max_value = df_exportacao_ano['Value (US)'].max()
+
+    # Definir os ticks no eixo y
+    yticks = list(plt.yticks()[0])
+
+    # Definir o novo limite do eixo y e os ticks
+    plt.ylim(0, max_value + 1)
+    plt.yticks(yticks)
+    st.pyplot(fig)
+    
+    
+    
+    #Quantidade
+    fig, ax = plt.subplots(figsize=(15, 10))
+    
+    # Plotar a evolução da quantidade ao longo do tempo
+    ax = sns.barplot(data=df_exportacao_ano, x='Year', y='Quantity (KG)', hue='Quantity (KG)', palette=custom_palette, dodge=False)
+    ax.legend_.remove()  # Remover a legenda do hue
+    plt.xlabel('Ano')
+    plt.ylabel('Quantidade (KG)')
+    plt.title('Evolução da Quantidade ao Longo do Tempo')
+
+    # Remover a notação científica dos valores nos eixos
+    plt.gca().get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, _: '{:,.0f}'.format(x)))
+
+    # Encontrar o maior valor no eixo y
+    max_value = df_exportacao_ano['Quantity (KG)'].max()
+
+    # Definir os ticks no eixo y
+    yticks = list(plt.yticks()[0])
+
+    # Definir o novo limite do eixo y e os ticks
+    plt.ylim(0, max_value + 1)
+    plt.yticks(yticks)
+
+    st.pyplot(fig)
+    
+    '''
+    Percebe-se um outlier em 2013 quanto ao valor e em 2009 quanto a quantidade. Entender como esses dados estão distribuídos por país e por país ao longo do tempo irão nos guiar melhor para entender essas diferenças.
+    
+    
+    ### Análise por País (Top)
+    Este ponto irá nos ajudar a entender quais são os principais países importadores tanto por valor quanto por quantidade nos últimos 15 anos e também irá iniciar o detalhamento dos outliers encontrados anteriormente.
+    '''
+    
+    #Valor
+    # Criando a figura
+    fig, ax = plt.subplots(figsize=(15, 10))
+
+    # Criando uma paleta categórica com inversão de tons
+    custom_palette = sns.color_palette("Blues", n_colors=len(df_exportacao_pais_top_10_valor_sorted))
+
+    ax = sns.barplot(data=df_exportacao_pais_top_10_valor_sorted, x='Value (US)', y='Country Name', hue='Value (US)', palette=custom_palette, dodge=False)
+    ax.legend_.remove()  # Remover a legenda do hue
+    plt.xlabel('Valor (US)')
+    plt.ylabel('País')
+    plt.title('Top 10 Países por Valor (US)')
+
+    # Remover a notação científica dos valores nos eixos
+    plt.gca().get_xaxis().set_major_formatter(ticker.FuncFormatter(lambda x, _: '{:,.0f}'.format(x)))
+
+    st.pyplot(fig)
+    
+    
+    
+    #Quantidade
+    # Criando a figura
+    fig, ax = plt.subplots(figsize=(15, 10))
+
+    # Criando uma paleta categórica com inversão de tons
+    custom_palette = sns.color_palette("Blues", n_colors=len(df_exportacao_pais_top_10_qtd_sorted))
+
+    ax = sns.barplot(data=df_exportacao_pais_top_10_qtd_sorted, x='Quantity (KG)', y='Country Name', hue='Quantity (KG)', palette=custom_palette, dodge=False)
+    ax.legend_.remove()  # Remover a legenda do hue
+    plt.xlabel('Quantidade (KG)')
+    plt.ylabel('País')
+    plt.title('Top 10 Países por Quantidade (KG)')
+
+    # Remover a notação científica dos valores nos eixos
+    plt.gca().get_xaxis().set_major_formatter(ticker.FuncFormatter(lambda x, _: '{:,.0f}'.format(x)))
+
+    st.pyplot(fig)
+    
+    
+    
+    '''
+    ### Análise Temporal por País
+    Agora é possível entender como os principais países se comportaram ao longo do tempo. Entendo melhor os outliers e também encontrando alguns padrões e tendências. 
+    '''
+    
+    #Valor
+    fig, ax = plt.subplots(figsize=(15, 10))
+
+    sns.lineplot(data=df_exportacao_pais_top_x, x='Year', y='Value (US)', hue='Country Name')
+
+    # Adicionar rótulos e título
+    plt.xlabel('Ano')
+    plt.ylabel('Valor (US)')
+    plt.title('Valor de Exportação por País ao Longo do Tempo')
+    plt.legend(loc='upper right')
+
+    plt.gca().get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, _: '{:,.0f}'.format(x)))
+
+    st.pyplot(fig)
+        
+    
+    
+    #Quantidade
+    fig, ax = plt.subplots(figsize=(15, 10))
+
+    sns.lineplot(data=df_exportacao_pais_top_x, x='Year', y='Quantity (KG)', hue='Country Name')
+
+    # Adicionar rótulos e título
+    plt.xlabel('Ano')
+    plt.ylabel('Quantidade (KG)')
+    plt.title('Quantidade de Exportação por País ao Longo do Tempo')
+
+    plt.gca().get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, _: '{:,.0f}'.format(x)))
+
+    st.pyplot(fig)
+    
+    '''
+    Em ambos os casos, devidos aos outliers Paraguai e Rússia fica difícil a visualização. Então, pode-se remover pontualmente estes países para entender um pouco melhor o comportamento dos demais países.
+    '''
+    
+    #Valor
+    fig, ax = plt.subplots(figsize=(15, 10))
+    sns.lineplot(data=df_exportacao_pais_top_x.query("`Country Name` not in ['Rússia', 'Paraguai']"), x='Year', y='Value (US)', hue='Country Name')
+
+    # Adicionar rótulos e título
+    plt.xlabel('Ano')
+    plt.ylabel('Valor (US)')
+    plt.title('Valor de Exportação por País ao Longo do Tempo')
+
+    plt.gca().get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, _: '{:,.0f}'.format(x)))
+    st.pyplot(fig)
+    
+    
+    
+    #Quantidade
+    fig, ax = plt.subplots(figsize=(15, 10))
+    sns.lineplot(data=df_exportacao_pais_top_x.query("`Country Name` not in ['Rússia', 'Paraguai']"), x='Year', y='Quantity (KG)', hue='Country Name')
+
+    # Adicionar rótulos e título
+    plt.xlabel('Ano')
+    plt.ylabel('Quantidade (KG)')
+    plt.title('Quantidade de Exportação por País ao Longo do Tempo')
+
+    plt.gca().get_yaxis().set_major_formatter(ticker.FuncFormatter(lambda x, _: '{:,.0f}'.format(x)))
+    st.pyplot(fig)
+    
+    '''
+    Agora, estamos ciente dos dados atuais. Sabemos que a Rússia se destaca na quantidade comprada e possui picos em alguns anos, não demonstrando uma tendência de crescimento. Já o Paraguai - país com maior valor gasto - por outro lado, mostra uma tendência de crescimento nos últimos anos.
+    
+    Alguns outros países como Espanha e China também tiveram picos de compra em quantidades, contudo, os mdemais países seguem uma certa tendência. 
     '''
