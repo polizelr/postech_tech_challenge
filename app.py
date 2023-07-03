@@ -35,6 +35,8 @@ with tab1:
     
     #Base
     df_exportacao_pais_top_x_pib_demographic = pd.read_csv('./dados/df_exportacao_pais_top_x_pib_demographic.csv')
+    df_exportacao_demographic = pd.read_csv('./dados/df_exportacao_demographic.csv')
+    paises_top_10_exp = list(df_exportacao_pais_top_x_pib_demographic['Country Name'])
     
     #População Total
     df_exportacao_pais_pib_demograficos_pop = df_exportacao_pais_top_x_pib_demographic.groupby('Country Name').agg({'Total Population Millions': 'mean'}).reset_index()
@@ -43,11 +45,18 @@ with tab1:
     #Média Idade
     df_exportacao_pais_pib_demograficos_med_age = df_exportacao_pais_top_x_pib_demographic.groupby('Country Name').agg({'Median Age': 'mean'}).reset_index()
     df_exportacao_pais_pib_demograficos_med_age_sorted = df_exportacao_pais_pib_demograficos_med_age.sort_values(by='Median Age', ascending=False)
+    df_exportacao_pais_nao_top_x_demographic_med_age_sorted = df_exportacao_demographic.query("(`Median Age` >= 36 and `Total Population Millions` >= 10) and `Country Name` not in @paises_top_10_exp").sort_values(by='Median Age', ascending=False)
+    df_exportacao_pais_nao_top_x_demographic_med_age_sorted = df_exportacao_pais_nao_top_x_demographic_med_age_sorted[['Country Name', 'Median Age']]
     
     #Expectativa de Vida
     df_exportacao_pais_pib_demograficos_exp_vida = df_exportacao_pais_top_x_pib_demographic.groupby('Country Name').agg({'Life Expectation': 'mean'}).reset_index()
     df_exportacao_pais_pib_demograficos_sorted = df_exportacao_pais_pib_demograficos_exp_vida.sort_values(by='Life Expectation', ascending=False)
-    
+    df_exportacao_pais_nao_top_x_demographic_life_exp_sorted = df_exportacao_demographic.query("`Life Expectation` >= 77 and `Country Name` not in @paises_top_10_exp").sort_values(by='Life Expectation', ascending=False)
+    df_exportacao_pais_nao_top_x_demographic_life_exp_sorted = df_exportacao_pais_nao_top_x_demographic_life_exp_sorted[['Country Name', 'Life Expectation']].head(10)
+
+    # Juntando os 3
+    df_exportacao_pais_nao_top_x_demographic_pop_medage_lifeexp_sorted = df_exportacao_demographic.query("(`Life Expectation` >= 77 and `Median Age` >= 36 and `Total Population Millions` >= 6.1) and `Country Name` not in @paises_top_10_exp").sort_values(by='Total Population Millions', ascending=False)
+
     '''
     ## Dados Demográficos
     
@@ -55,10 +64,10 @@ with tab1:
 
     A Revisão de 2022 das Perspectivas da População Mundial é a vigésima sétima edição das estimativas e projeções populacionais oficiais das Nações Unidas que foram preparadas pela Divisão de População do Departamento de Assuntos Econômicos e Sociais do Secretariado das Nações Unidas.
     
-    Apresenta estimativas populacionais de 1950 até o presente para 237 países ou áreas, sustentadas por análises de tendências demográficas históricas. Esta última avaliação considera os resultados de 1.758 censos populacionais nacionais realizados entre 1950 e 2022, bem como informações de sistemas de registro vital e de 2.890 pesquisas de amostra nacionalmente representativas. nos níveis global, regional e nacional.
+    Apresenta estimativas populacionais de 1950 até o presente para 237 países ou áreas, sustentadas por análises de tendências demográficas históricas. Esta última avaliação considera os resultados de 1.758 censos populacionais nacionais realizados entre 1950 e 2022, bem como informações de sistemas de registro vital e de 2.890 pesquisas de amostra nacionalmente representativas nos níveis global, regional e nacional.
     
     ### População
-    Ao tentar analisar a população dos Top importadores podemos ver que não há um padrão definido:
+    Ao analisar a população média dos top importadores, podemos ver que não existe um padrão definido:
     '''
     
     ####### Gráfico de barras #####
@@ -79,23 +88,22 @@ with tab1:
     
     st.pyplot(fig)
     #############################
-    is_exibir_exp_pop = st.checkbox('Tabela População Top Importadores')
+    is_exibir_exp_pop = st.checkbox('Tabela com a população média (em milhões) dos Top Importadores')
     if is_exibir_exp_pop:
         st.dataframe(df_exportacao_pais_pib_demograficos_pop_sorted, use_container_width=True, hide_index=True)
         csv = df_exportacao_pais_pib_demograficos_pop_sorted.to_csv(index=False)
-        st.download_button(label='Download Top População (CSV)', data=csv, file_name='exp_top_populacao.csv', mime='text/csv')    
+        st.download_button(label='Download (CSV)', data=csv, file_name='populacao_media_paises_top_10.csv', mime='text/csv')    
     
     
     '''
-    - A China possui uma população muito maior do que os outros países, o que poderia gerar pensamentos como a buscar por outros mercados que possuem a mesma característica, como a Índia, por exemplo 
-    - Contudo, os demais países possuem uma população muito abaixo, indicando que este não deve ser um fator com grande peso na tomada de decisão
+    - A China possui uma população média muito maior do que a dos outros países, o que poderia gerar pensamentos como o de buscar por outros mercados que possuem a mesma característica, como a Índia, por exemplo.
+    - Contudo, os demais países possuem uma população média consideravelmente menor (Países Baixos, Haiti e Paraguai, especialmente), o que nos leva a acreditar que esse indicador, se analisado isoladamente, não deve ser um fator com grande peso na tomada de decisão.
     '''
-    
     
     
     '''
     ### Idade Média
-    Ao analisar a Idade Média, porém, temos alguns destaques:
+    Ao analisar a Idade Média da população, porém, temos alguns destaques:
     '''
     ####### Gráfico de barras #####
     # Criando a figura
@@ -115,32 +123,55 @@ with tab1:
     
     st.pyplot(fig)
     #############################
-    is_exibir_exp_med_age = st.checkbox('Tabela Média Idade Top Importadores')
+    is_exibir_exp_med_age = st.checkbox('Tabela com a idade média dos Top Importadores')
     if is_exibir_exp_med_age:
         st.dataframe(df_exportacao_pais_pib_demograficos_med_age_sorted, use_container_width=True, hide_index=True)
         csv = df_exportacao_pais_pib_demograficos_med_age_sorted.to_csv(index=False)
-        st.download_button(label='Download Média Idade (CSV)', data=csv, file_name='exp_ med_idade.csv', mime='text/csv') 
+        st.download_button(label='Download (CSV)', data=csv, file_name='idade_media_paises_top_10.csv', mime='text/csv') 
     
     '''
-    Uma parte considerável dos top países importadores do Brasil tem uma idade média na casa dos 38 anos - com destaque para o Japão e Alemanha.
+    Uma parte considerável dos top países importadores do Brasil tem uma idade média na casa dos 36 anos, com destaque para o Japão e a Alemanha.
     '''
     
     ####### Gráfico de barras #####
-    ax.axvline(x=38, color='red', linestyle='--')
+    ax.axvline(x=36, color='red', linestyle='--')
     st.pyplot(fig)
     #############################
     
     '''
-    Mostrando um possível forte mercado, traçando um filtro e buscando os países com idade média próxima dessa faixa
-    
-    ### ADICIONAR GRÁFICO
+    Esse fato pode indicar um potencial mercado. Portanto, vamos utilizar essa média (36 anos) como parâmetro para buscar outros países que possuem uma idade média a partir dessa faixa.
     '''
+
+    ####### Gráfico de barras #####
+    # Criando a figura
+    fig, ax = plt.subplots(figsize=(15, 10))
+
+    # Criando uma paleta categórica com inversão de tons
+    custom_palette = sns.color_palette("Blues", n_colors=len(df_exportacao_pais_nao_top_x_demographic_med_age_sorted))
+
+    sns.barplot(data=df_exportacao_pais_nao_top_x_demographic_med_age_sorted, x='Median Age', y='Country Name', hue='Median Age', palette=custom_palette, dodge=False, ax=ax)
+    ax.legend_.remove()  # Remover a legenda do hue
+    ax.set_xlabel('Idade média da população')
+    ax.set_ylabel('País')
+    ax.set_title('Top Países Importadores - Idade média da população')
+
+    # Remover a notação científica dos valores nos eixos
+    ax.get_xaxis().set_major_formatter(ticker.FuncFormatter(lambda x, _: '{:,.0f}'.format(x)))
+    
+    st.pyplot(fig)
+    #############################
+    
+    is_exibir_exp_med_age_pais_nao_top_x = st.checkbox('Tabela com a idade média dos países que não estão entre os Top Importadores')
+    if is_exibir_exp_med_age_pais_nao_top_x:
+        st.dataframe(df_exportacao_pais_nao_top_x_demographic_med_age_sorted, use_container_width=True, hide_index=True)
+        csv = df_exportacao_pais_nao_top_x_demographic_med_age_sorted.to_csv(index=False)
+        st.download_button(label='Download (CSV)', data=csv, file_name='idade_media_paises_fora_top_10.csv.csv', mime='text/csv') 
     
     #TODO: @RODRIGO adicionar csv e gráfico com os países de maior média de idade que não estão nos top importadores
     
     '''
     ### Expectativa de Vida
-    Ao analisar a expectativa de vida, vemos que os principais compradores do Brasil possuem uma expectativa de vida consideravelmente, reforçando a relação com a análise anterior
+    Ao analisar a expectativa de vida, vemos que os principais compradores do Brasil possuem uma expectativa de vida consideravelmente alta, reforçando a relação com a análise anterior.
     '''
     
     ####### Gráfico de barras #####
@@ -161,13 +192,58 @@ with tab1:
     
     st.pyplot(fig)
     #############################
+
+    is_exibir_exp_life_exp_pais_nao_top_x = st.checkbox('Tabela com a expectativa de vida média dos países que estão entre os Top Importadores')
+    if is_exibir_exp_life_exp_pais_nao_top_x:
+        st.dataframe(df_exportacao_pais_pib_demograficos_sorted, use_container_width=True, hide_index=True)
+        csv = df_exportacao_pais_pib_demograficos_sorted.to_csv(index=False)
+        st.download_button(label='Download (CSV)', data=csv, file_name='expectativa_media_paises_top_10.csv.csv', mime='text/csv') 
+
     
     '''
-    Podemos então destacar outros mercados com expectativa de vida elevada como fortes candidatos
-    ### ADICIONAR GRÁFICO
+    A partir disso, podemos então destacar outros mercados com expectativa de vida elevada como fortes candidatos.
     '''
+    ####### Gráfico de barras #####
+    # Criando a figura
+    fig, ax = plt.subplots(figsize=(15, 10))
+
+    # Criando uma paleta categórica com inversão de tons
+    custom_palette = sns.color_palette("Blues", n_colors=len(df_exportacao_pais_nao_top_x_demographic_life_exp_sorted))
+
+    sns.barplot(data=df_exportacao_pais_nao_top_x_demographic_life_exp_sorted, x='Life Expectation', y='Country Name', hue='Life Expectation', palette=custom_palette, dodge=False, ax=ax)
+    ax.legend_.remove()  # Remover a legenda do hue
+    ax.set_xlabel('Expectativa de vida média da população')
+    ax.set_ylabel('País')
+    ax.set_title('Top Países Importadores - Expectativa de vida média da população')
+
+    # Remover a notação científica dos valores nos eixos
+    ax.get_xaxis().set_major_formatter(ticker.FuncFormatter(lambda x, _: '{:,.0f}'.format(x)))
     
-    #TODO: @RODRIGO adicionar csv e gráfico com os países de maior expectativa de vida que não estão nos top importadores
+    st.pyplot(fig)
+    #############################
+    
+    is_exibir_exp_med_age_pais_nao_top_x = st.checkbox('Tabela com a expectativa média de vida dos países que não estão entre os Top Importadores')
+    if is_exibir_exp_med_age_pais_nao_top_x:
+        st.dataframe(df_exportacao_pais_nao_top_x_demographic_life_exp_sorted, use_container_width=True, hide_index=True)
+        csv = df_exportacao_pais_nao_top_x_demographic_life_exp_sorted.to_csv(index=False)
+        st.download_button(label='Download (CSV)', data=csv, file_name='expectativa_media_paises_fora_top_10.csv.csv', mime='text/csv')     
+
+
+    '''
+    ### TODOS...
+    E se buscarmos simultaneamente de acordo com os 2 últimos indicadores?
+    - Idade média da população maior ou igual a 36 anos;
+    - Expectativa de vida maior ou igual a 77 anos;
+    
+    Além disso, apesar de a população total não ser, de maneira isolada, um indicador forte, a tendência é de que quanto maior a população do país, mais pessoas disponíveis para consumir. Portanto, vamos selecionar apenas países com uma população média maior que 6.1 milhões, que a população do Paraguai, o país de menor população entre os Top Importadores.
+
+    Os países da lista abaixo são exemplos de países cujo mercado possui bom potencial para ser explorado.
+    '''
+    st.dataframe(df_exportacao_pais_nao_top_x_demographic_pop_medage_lifeexp_sorted, use_container_width=True, hide_index=True)
+    csv = df_exportacao_pais_nao_top_x_demographic_pop_medage_lifeexp_sorted.to_csv(index=False)
+    st.download_button(label='Download (CSV)', data=csv, file_name='potenciais_mercados.csv', mime='text/csv') 
+
+
     
     
     
