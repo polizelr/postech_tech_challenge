@@ -17,13 +17,15 @@ pd.set_option('display.float_format', lambda x: '%.2f' % x)
 
 st.title('Exportação de Vinhos - Análise e Insights')
 
-tab0, tab1, tab2, tab3, tab4 = st.tabs(["Home", "Dados Demográficos", "Dados Econômicos", "Dados Climáticos", "Análise Exploratória"])
+tab0, tab1, tab2, tab3, tab4, tab5 = st.tabs(["Home", "Dados Demográficos", "Dados Econômicos", "Dados Climáticos", "Análise Exploratória", "Fontes"])
 
 with tab0:
     '''
     ## Dados de Exportação
     '''
     df_dados_exportacao = pd.read_csv('./dados/tabela_final.csv')
+    df_dados_climaticos_media_mes = pd.read_csv('./dados/dados_climaticos_rs_media_mes_versao_final.csv')
+    df_dados_climaticos_media_ano = pd.read_csv('./dados/dados_climaticos_rs_media_ano_versao_final.csv')
     df = pd.DataFrame(df_dados_exportacao)
     st.dataframe(df, use_container_width=True, hide_index=True)
     
@@ -278,11 +280,463 @@ with tab2:
         csv = df_pib_paises_avg_30k_not_exp.to_csv(index=False)
         st.download_button(label='Download Insights PIB (CSV)', data=csv, file_name='insights_pib.csv', mime='text/csv')
 
-    
 with tab3:
     '''
     ## Dados Climáticos
+    
+    O Rio Grande do Sul possui o clima favorável para o cultivo de uvas de qualidade para a produção de vinhos, uma vez que se aproxima ao clima mediterrâneo, com verões quentes e invernos frios.
+    
+    Contudo, faz-se extremamente necessário analisar as variações climáticas, para que ações relativas ao manejo das videiras sejam tomadas de modo que a produção, qualidade das uvas e, consequentemente, o comércio interno e de exportação não sejam afetados.
+    
     '''
+    
+    
+    # -----------------------------------------------------------------------------------------------------------------------------
+    
+    '''
+    ## Temperatura
+    
+    O Rio Grande do Sul apresenta uma temperatura média compensada que varia entre  12°C a 24°C, dependendo da localização específica. 
+    
+    Através da análise do gráfico abaixo, podemos constatar que durante o verão (dezembro a fevereiro), as temperaturas médias mínima e máxima variam entre 17°C a 30°C. No inverno (junho a agosto), as temperaturas médias mínima e máxima caem consideravelmente e variam entre 8°C a 21°C. Já no outono (março a maio) e na primavera (setembro a novembro) variam entre 11°C a 28°C.
+    
+    Contudo, durante o verão, ondas de calor podem ocorrer, causando desidratação e estresse térmico nas videiras. No inverno, as geadas ocasionadas por temperaturas abaixo de zero, podem danificar as plantas e reduzir a produtividade.
+    
+    
+    '''
+    
+    # Criar o gráfico
+    df_dc_mes = pd.DataFrame(df_dados_climaticos_media_mes) 
+    
+    fig_dc_2 = go.Figure()
+
+    fig_dc_2.add_trace(go.Scatter(x=df_dc_mes['mes'], y=df_dc_mes['temperatura_media_compensada'], name='Temperatura Média Compensada'))
+    fig_dc_2.add_trace(go.Scatter(x=df_dc_mes['mes'], y=df_dc_mes['temperatura_min_media'], name='Temperatura Média Mínima'))
+    fig_dc_2.add_trace(go.Scatter(x=df_dc_mes['mes'], y=df_dc_mes['temperatura_max_media'], name='Temperatura Média Máxima', line=dict(color='rgb(0, 0, 120)')))
+    fig_dc_2.add_annotation(x=0, y=-0.30, showarrow=False, text="Fonte: INMET - Instituto Nacional de Meteorologia", font=dict(size=12, color="black"),
+                       xref="paper", yref="paper")
+    fig_dc_2.update_layout(
+        title='Temperaturas Máxima, Mínima e Média Compensada Mensal no Período de 2007 até 2021',
+        xaxis=dict(
+            title='Mês',
+            tickmode='linear',
+            tick0=df_dc_mes['mes'].min(),
+            dtick=1
+        ),
+        yaxis=dict(
+            title='Temperatura Média (°C)',
+            range=[0, 30]
+        ),
+        showlegend=True,
+        legend=dict(
+            title='Variáveis',
+            x=0,            
+            y=-1,                        
+            bordercolor='Black',
+            borderwidth=1
+        ),
+        plot_bgcolor='white',
+        grid=dict(
+            rows=1,
+            columns=1,
+            subplots=[['xy']]
+        )
+    )
+    
+    # Adicionando linhas verticais
+    fig_dc_2.add_shape(
+        type='line',
+        x0=1.5,
+        y0=0,
+        x1=1.5,
+        y1=30,
+        line=dict(
+            color='gray',
+            width=1,
+            dash='dash'
+        )
+    )
+    fig_dc_2.add_shape(
+        type='line',
+        x0=4.5,
+        y0=0,
+        x1=4.5,
+        y1=30,
+        line=dict(
+            color='gray',
+            width=1,
+            dash='dash'
+        )
+    )
+    fig_dc_2.add_shape(
+        type='line',
+        x0=7.5,
+        y0=0,
+        x1=7.5,
+        y1=30,
+        line=dict(
+            color='gray',
+            width=1,
+            dash='dash'
+        )
+    )
+    fig_dc_2.add_shape(
+        type='line',
+        x0=10.5,
+        y0=0,
+        x1=10.5,
+        y1=30,
+        line=dict(
+            color='gray',
+            width=1,
+            dash='dash'
+        )
+    )
+
+    # Renderizar o gráfico utilizando o Streamlit
+    st.plotly_chart(fig_dc_2, use_container_width=True)
+    
+    
+    
+   # ----------------------------------------------------------------------------------------------------------------------------- 
+        
+    '''
+    ## Precipitação
+    
+    A precipitação no Rio Grande do Sul é bem distribuída ao longo do ano, porém apresenta algumas variações sazonais significativas.
+         
+    Através da análise do gráfico abaixo, podemos constatar que as estações mais chuvosas são a primavera (setembro à novembro) e o verão (dezembro à fevereiro), 
+    com precipitação média mensal variando entre 120mm à 200mm. O inverno (junho à agosto) apresenta níveis intermediários de precipitação variando entre 120mm à 150mm.
+    Enquanto no outono (março à maio), a precipitação é menor, variando entre 100mm à 150mm. O outono corresponde ao período de seca no estado.
+    
+    Contudo, é importante ressaltar que o Rio Grande do Sul apresenta episódios de chuvas intensas, especialmente no verão, que causam encharcamento do solo, afetando assim a saúde das videiras e contribuindo para o aumento do risco de doenças, como exemplo doenças fúngicas (míldio, oídio e mofo-cinzento) e bacterianas. 
+    
+    '''
+    
+    # Criar o gráfico
+    df_dc_mes = pd.DataFrame(df_dados_climaticos_media_mes) 
+    
+    fig_dc_2 = go.Figure()
+
+    fig_dc_2.add_trace(go.Scatter(x=df_dc_mes['mes'], y=df_dc_mes['precipitacao'], name='Precipitação Média (mm)'))    
+    fig_dc_2.add_annotation(x=0, y=-0.30, showarrow=False, text="Fonte: INMET - Instituto Nacional de Meteorologia", font=dict(size=12, color="black"),
+                       xref="paper", yref="paper")
+    fig_dc_2.update_layout(
+        title='Precipitação Média Mensal no Período de 2007 até 2021',
+        xaxis=dict(
+            title='Mês',
+            tickmode='linear',
+            tick0=df_dc_mes['mes'].min(),
+            dtick=1
+        ),
+        yaxis=dict(
+            title='Precipitação Média (mm)',
+            #range=[0, 30]
+        ),
+        showlegend=True,
+        legend=dict(
+            title='Variáveis',
+            x=0,            
+            y=-1,                        
+            bordercolor='Black',
+            borderwidth=1
+        ),
+        plot_bgcolor='white',
+        grid=dict(
+            rows=1,
+            columns=1,
+            subplots=[['xy']]
+        )
+    )
+    
+    # Adicionando linhas verticais
+    fig_dc_2.add_shape(
+        type='line',
+        x0=1.5,
+        y0=0,
+        x1=1.5,
+        y1=200,
+        line=dict(
+            color='gray',
+            width=1,
+            dash='dash'
+        )
+    )
+    fig_dc_2.add_shape(
+        type='line',
+        x0=4.5,
+        y0=0,
+        x1=4.5,
+        y1=200,
+        line=dict(
+            color='gray',
+            width=1,
+            dash='dash'
+        )
+    )
+    fig_dc_2.add_shape(
+        type='line',
+        x0=7.5,
+        y0=0,
+        x1=7.5,
+        y1=200,
+        line=dict(
+            color='gray',
+            width=1,
+            dash='dash'
+        )
+    )
+    fig_dc_2.add_shape(
+        type='line',
+        x0=10.5,
+        y0=0,
+        x1=10.5,
+        y1=200,
+        line=dict(
+            color='gray',
+            width=1,
+            dash='dash'
+        )
+    )
+
+    # Renderizar o gráfico utilizando o Streamlit
+    st.plotly_chart(fig_dc_2, use_container_width=True)
+    
+    # -----------------------------------------------------------------------------------------------------------------------------    
+    
+    '''
+    ## Umidade Relativa do Ar
+    
+    A umidade relativa do ar no Rio Grande do Sul possui médias anuais que variam entre 70% a 90%, devido a proximidade do oceano Atlântico e pela circulação de massas de ar úmidas.
+    
+    Ela desempenha um papel crucial durante todo o ciclo de cultivo da videira, influenciando tanto os aspectos fisiológicos da planta quanto a ocorrência de doenças causadas por fungos e bactérias. Quando a umidade relativa do ar é alta, isso tende a promover o crescimento de ramos mais vigorosos, acelerar a brotação das folhas e contribuir para uma vida útil prolongada da planta. No entanto, se essa alta umidade estiver combinada com temperaturas elevadas, há um aumento significativo na incidência de doenças fúngicas e bacterianas. Essas condições propiciam um ambiente mais favorável para a proliferação dessas doenças, representando um desafio para a saúde da videira ao longo do seu ciclo de crescimento. (Fonte: Sistema de Produção - Cultivo da Videira)
+    '''
+    
+    
+    # Criar o gráfico
+    df_dc_mes = pd.DataFrame(df_dados_climaticos_media_mes) 
+    
+    fig_dc_2 = go.Figure()
+
+    fig_dc_2.add_trace(go.Scatter(x=df_dc_mes['mes'], y=df_dc_mes['umidade_relativa_ar_media'], name='Umidade Relativa do Ar'))    
+    fig_dc_2.add_annotation(x=0, y=-0.30, showarrow=False, text="Fonte: INMET - Instituto Nacional de Meteorologia", font=dict(size=12, color="black"),
+                       xref="paper", yref="paper")
+    fig_dc_2.update_layout(
+        title='Umidade Relativa do Ar Média Mensal no Período de 2007 até 2021',
+        xaxis=dict(
+            title='Mês',
+            tickmode='linear',
+            tick0=df_dc_mes['mes'].min(),
+            dtick=1
+        ),
+        yaxis=dict(
+            title='Umidade Relativa do Ar (%)',
+            range=[50, 90]
+        ),
+        showlegend=True,
+        legend=dict(
+            title='Variáveis',
+            x=0,            
+            y=-1,                        
+            bordercolor='Black',
+            borderwidth=1
+        ),
+        plot_bgcolor='white',
+        grid=dict(
+            rows=1,
+            columns=1,
+            subplots=[['xy']]
+        )
+    )
+    
+    # Adicionando linhas verticais
+    fig_dc_2.add_shape(
+        type='line',
+        x0=1.5,
+        y0=0,
+        x1=1.5,
+        y1=200,
+        line=dict(
+            color='gray',
+            width=1,
+            dash='dash'
+        )
+    )
+    fig_dc_2.add_shape(
+        type='line',
+        x0=4.5,
+        y0=0,
+        x1=4.5,
+        y1=200,
+        line=dict(
+            color='gray',
+            width=1,
+            dash='dash'
+        )
+    )
+    fig_dc_2.add_shape(
+        type='line',
+        x0=7.5,
+        y0=0,
+        x1=7.5,
+        y1=200,
+        line=dict(
+            color='gray',
+            width=1,
+            dash='dash'
+        )
+    )
+    fig_dc_2.add_shape(
+        type='line',
+        x0=10.5,
+        y0=0,
+        x1=10.5,
+        y1=200,
+        line=dict(
+            color='gray',
+            width=1,
+            dash='dash'
+        )
+    )
+
+    # Renderizar o gráfico utilizando o Streamlit
+    st.plotly_chart(fig_dc_2, use_container_width=True)
+    
+    
+    # -----------------------------------------------------------------------------------------------------------------------------    
+    
+    '''
+    ## Padrões Sazonais
+    
+    Conforme podemos observar no gráfico abaixo, o estado do Rio Grande do Sul experimenta as quatro estações do ano de forma bem definida. O outono (março a maio) é caracterizado por temperaturas amenas e queda na quantidade de chuvas. No inverno (junho a agosto), as temperaturas 
+    são mais baixas e podem ocorrer geadas. Na primavera (setembro a novembro), as temperaturas começam a subir e a precipitação é intensa. No verão (dezembro a fevereiro), as temperaturas são mais elevadas e podem ocorrer episódios de chuvas intensas.   
+    
+    
+    '''
+    
+    # Create figure with secondary y-axis
+    fig_dc_3 = go.Figure()
+    fig_dc_3 = make_subplots(specs=[[{"secondary_y": True}]])
+    
+
+    # Add traces
+    fig_dc_3.add_trace(
+        go.Scatter(x=df_dc_mes['mes'], y=df_dc_mes['temperatura_media_compensada'], name='Temperatura Média Compensada (°C)'),
+        secondary_y=False,
+    )
+
+    fig_dc_3.add_trace(
+        go.Scatter(x=df_dc_mes['mes'], y=df_dc_mes['precipitacao'], name="Precipitação Média (mm)"),
+        secondary_y=True,
+    )
+    
+    fig_dc_3.add_annotation(x=0, y=-0.30, showarrow=False, text="Fonte: INMET - Instituto Nacional de Meteorologia", font=dict(size=12, color="black"),
+                       xref="paper", yref="paper")
+
+    # Add figure title
+    fig_dc_3.update_layout(
+        title_text="Temperatura Média Compensada e Precipitação Média Mensal no Período de 2007 até 2021",
+        showlegend=True,
+        legend=dict(
+            title='Variáveis',
+            x=0,            
+            y=-1,                        
+            bordercolor='Black',
+            borderwidth=1
+        ),
+        grid=dict(
+            rows=1,
+            columns=1,
+            subplots=[['xy']]
+            
+        )
+    )
+
+    # Set x-axis title
+    fig_dc_3.update_xaxes(title_text="Mês")
+
+    # Set y-axes titles
+    fig_dc_3.update_yaxes(title_text="Temperatura Média Compensada (°C)", range=[0, 32], secondary_y=False)
+    fig_dc_3.update_yaxes(title_text="Precipitação Média (mm)", range=[100, 202], secondary_y=True)
+    
+    # Adicionando linhas verticais
+    fig_dc_3.add_shape(
+        type='line',
+        x0=1.5,
+        y0=0,
+        x1=1.5,
+        y1=200,
+        line=dict(
+            color='gray',
+            width=1,
+            dash='dash'
+        )
+    )
+    fig_dc_3.add_shape(
+        type='line',
+        x0=4.5,
+        y0=0,
+        x1=4.5,
+        y1=200,
+        line=dict(
+            color='gray',
+            width=1,
+            dash='dash'
+        )
+    )
+    fig_dc_3.add_shape(
+        type='line',
+        x0=7.5,
+        y0=0,
+        x1=7.5,
+        y1=200,
+        line=dict(
+            color='gray',
+            width=1,
+            dash='dash'
+        )
+    )
+    fig_dc_3.add_shape(
+        type='line',
+        x0=10.5,
+        y0=0,
+        x1=10.5,
+        y1=200,
+        line=dict(
+            color='gray',
+            width=1,
+            dash='dash'
+        )
+    )
+    
+    st.plotly_chart(fig_dc_3, use_container_width=True)
+    
+    
+    
+    
+    # -----------------------------------------------------------------------------------------------------------------------------
+       
+    '''
+    ## Ações para Melhoria na Quantidade e Qualidade da Produção de Vinhos 
+    
+    
+    Através da análise dos dados climáticos do Rio Grande do Sul, as seguintes ações serão adotadas a fim de mitigar os riscos associados 
+    às mudanças climáticas e, dessa forma, garantir a quantidade e a qualidade da produção de vinho para a exportação e comercialização interna: 
+    
+    1. Seleção de variedades de uva mais adaptadas às condições climáticas futuras, levando em conta fatores como resistência ao calor, seca e doenças fúngicas, para que sejam utilizadas como porta-enxerto para variedades de uvas que são mais sensíveis à doenças, como por exemplo a Vitis Vinifera L.
+    
+    2. Implementação de sistemas de irrigação eficientes para garantir o suprimento adequado de água durante o período de seca, que corresponde aos meses de março à maio. 
+    
+    3. Adoção de práticas de manejo do solo que melhorem a drenagem e reduzam o risco de encharcamento durante os períodos de chuvas intensas.
+
+    4. Monitoramento e controle rigorosos de doenças fúngicas, nos períodos de alta umidade relativa do ar associado à altas temperaturas, considerando estes períodos de maior incidência dessas doenças.
+    
+    5. Investimento em tecnologias e práticas de manejo que ajudem a mitigar os efeitos do estresse térmico nas vinhas, como a proteção contra radiação solar excessiva.
+    
+    
+    É importante ressaltar que o monitoramento dos dados climáticos e as ações para a gestão adequada dos riscos associados à produção de vinho serão contínuos, uma vez que fenômenos como o aquecimento global e o El Niño podem influenciar drasticamente as previsões climáticas de longo prazo.   
+    
+    ''' 
     
 with tab4:
     #Dados
@@ -607,3 +1061,31 @@ with tab4:
     
     Alguns outros países como Espanha e China também tiveram picos de compra em quantidades, contudo, os mdemais países seguem uma certa tendência. 
     '''
+    
+    
+with tab5:
+    fontes_markdown = '''
+        # Fontes:
+
+        
+        **Dados da Vitivinicultura**  
+        http://vitibrasil.cnpuv.embrapa.br/index.php?opcao=opt_01 
+
+        **INMET: Instituto Nacional de Meteorologia**  
+        https://portal.inmet.gov.br/  
+        Para esta análise, foram utilizados dados no período entre 01/01/2007 até 31/12/2021, provenientes das estações: BAGE, BOM JESUS, CAXIAS DO SUL, CRUZ ALTA, LAGOA VERMELHA, PASSO FUNDO, PELOTAS, PORTO ALEGRE, SANTA MARIA, SANTA VITORIA DO PALMAR e SAO LUIZ GONZAGA. 
+
+        **Atlas Climático - Rio Grande do Sul**  
+        https://www.agricultura.rs.gov.br/upload/arquivos/202005/13110034-atlas-climatico-rs.pdf
+
+        **O Cultivo e o Mercado da Uva**  
+        https://sebrae.com.br/sites/PortalSebrae/artigos/o-cultivo-e-o-mercado-da-uva,ae8da5d3902e2410VgnVCM100000b272010aRCRD
+
+        **Sistema de Produção - Cultivo da Videira**  
+        http://www.cpatsa.embrapa.br:8080/sistema_producao/spuva/clima.html
+        
+    '''
+    
+    st.markdown(fontes_markdown)
+   
+   
