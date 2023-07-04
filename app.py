@@ -21,13 +21,89 @@ tab0, tab1, tab2, tab3, tab4, tab5 = st.tabs(["Home", "Dados Demográficos", "Da
 
 with tab0:
     '''
+    ## Home
+
+    A partir da análise de dados dos dados brasileiros de vitivinicultura e da correlação destes dados com dados demográficos e dados econômicos, os seguintes insights foram encontrados.
+    
+    ## Novos Mercados
+    Os seguintes países obtiveram destaque e posicionam-se como fortes mercados a serem analisados:
+    - Austrália
+    - Áustria
+    - Bélgica
+    - Canadá
+    - Itália
+    - Suécia
+    - Suíça
+    '''
+    
+    # Dados dos países
+    data = {
+        'Country': ['Australia', 'Austria', 'Belgium', 'Canada', 'Italy', 'Sweden', 'Switzerland'],
+        'Highlight': [1, 1, 1, 1, 1, 1, 1]
+    }
+
+    # Criação do DataFrame
+    df = pd.DataFrame(data)
+
+    # Criação do mapa-múndi com destaque nos países mencionados
+    fig = px.choropleth(locations=df['Country'], locationmode='country names', color=df['Highlight'],
+                        color_continuous_scale='blues', range_color=[0, 1], labels={'color': 'Highlight'})
+    fig.update_layout(geo=dict(showframe=False, projection_type='natural earth'))
+
+    fig.update_coloraxes(showscale=False)
+
+    # Exibição do mapa
+    st.plotly_chart(fig)
+    
+    '''
+    Estes países se destacaram tanto na análise do PIB, por possuir um PIB per Capita médio acima de 30 mil dólares anuais, quanto na análise demográfica, com uma população de idade média igual ou superior a 36 anos e, principalmente, expectativa de vida igual ou maior a 77 anos. Estas análises podem ser vistas em detalhas nas respectivas abas.
+    
+    
+    ## Atuais Compradores
+    
+    Dentre os atuais top importadores do Brasil, Paraguai, Rússia e Haiti destacaram-se.
+
+    '''
+    
+    # Dados dos países
+    data = {
+        'Country': ['Paraguay', 'Russia', 'Haiti'],
+        'Highlight': [1, 1, 1]
+    }
+
+    # Criação do DataFrame
+    df = pd.DataFrame(data)
+
+    # Criação do mapa-múndi com destaque nos países mencionados
+    fig = px.choropleth(locations=df['Country'], locationmode='country names', color=df['Highlight'],
+                        color_continuous_scale='RdPu', range_color=[0, 1], labels={'color': 'Highlight'})
+    fig.update_layout(geo=dict(showframe=False, projection_type='natural earth'))
+
+    fig.update_coloraxes(showscale=False)
+
+    # Exibição do mapa
+    st.plotly_chart(fig)
+    
+    '''
+    A Rússia por ser o país que comprou as maiores quantidades nos últimos 15 anos. Paraguai e Haiti, mesmo apresentando valores abaixos nos 3 indicadores demográficos analisados perante aos demais países, são os que apresentam grande tendência de crescimento nos últimos anos. Paraguai ainda se destaca por ter sido o país com maior valor gasto nos últimos 15 anos. Estes dados estão detalhamente analisados na aba Análise Exploratória.
+    '''
+    
+    '''
+    ## Melhorias de Qualidade
+    
+    Além disso, entendeu-se a importância da produção e da qualidade das uvas, não apenas pensando na exportação, mas também no impacto positivo no comércio interno. Então, foi realizado um estudo específico sobre como mitigar os riscos associados à produção de uva.
+    '''
+    
+    '''
     ## Dados de Exportação
+    
+    Este é o atual montante de exportação nos últimos 15 anos, mostrando o país de origem (Braisl), país de destino, quantidade de litros de vinho exportados e valor em US$.
     '''
     df_dados_exportacao = pd.read_csv('./dados/tabela_final.csv')
-    df_dados_climaticos_media_mes = pd.read_csv('./dados/dados_climaticos_rs_media_mes_versao_final.csv')
-    df_dados_climaticos_media_ano = pd.read_csv('./dados/dados_climaticos_rs_media_ano_versao_final.csv')
-    df = pd.DataFrame(df_dados_exportacao)
-    st.dataframe(df, use_container_width=True, hide_index=True)
+    df_dados_exportacao['Ano'] = df_dados_exportacao['Ano'].astype(str)
+    st.dataframe(df_dados_exportacao, use_container_width=True, hide_index=True)
+    csv = df_dados_exportacao.to_csv(index=False)
+    st.download_button(label='Download (CSV)', data=csv, file_name='exportacao_15_anos.csv', mime='text/csv')
     
     
 with tab1:
@@ -167,8 +243,6 @@ with tab1:
         csv = df_exportacao_pais_nao_top_x_demographic_med_age_sorted.to_csv(index=False)
         st.download_button(label='Download (CSV)', data=csv, file_name='idade_media_paises_fora_top_10.csv.csv', mime='text/csv') 
     
-    #TODO: @RODRIGO adicionar csv e gráfico com os países de maior média de idade que não estão nos top importadores
-    
     '''
     ### Expectativa de Vida
     Ao analisar a expectativa de vida, vemos que os principais compradores do Brasil possuem uma expectativa de vida consideravelmente alta, reforçando a relação com a análise anterior.
@@ -222,8 +296,8 @@ with tab1:
     st.pyplot(fig)
     #############################
     
-    is_exibir_exp_med_age_pais_nao_top_x = st.checkbox('Tabela com a expectativa média de vida dos países que não estão entre os Top Importadores')
-    if is_exibir_exp_med_age_pais_nao_top_x:
+    is_exibir_exp_expec_age_pais_nao_top_x = st.checkbox('Tabela com a expectativa média de vida dos países que não estão entre os Top Importadores')
+    if is_exibir_exp_expec_age_pais_nao_top_x:
         st.dataframe(df_exportacao_pais_nao_top_x_demographic_life_exp_sorted, use_container_width=True, hide_index=True)
         csv = df_exportacao_pais_nao_top_x_demographic_life_exp_sorted.to_csv(index=False)
         st.download_button(label='Download (CSV)', data=csv, file_name='expectativa_media_paises_fora_top_10.csv.csv', mime='text/csv')     
@@ -235,7 +309,7 @@ with tab1:
     - Idade média da população maior ou igual a 36 anos;
     - Expectativa de vida maior ou igual a 77 anos;
     
-    Além disso, apesar de a população total não ser, de maneira isolada, um indicador forte, a tendência é de que quanto maior a população do país, mais pessoas disponíveis para consumir. Portanto, vamos selecionar apenas países com uma população média maior que 6.1 milhões, que a população do Paraguai, o país de menor população entre os Top Importadores.
+    Além disso, apesar de a população total não ser, de maneira isolada, um indicador forte, a tendência é de que quanto maior a população do país, mais pessoas disponíveis para consumir. Portanto, vamos selecionar apenas países com uma população média maior que 6.1 milhões - população do Paraguai, o país de menor população entre os top importadores.
 
     Os países da lista abaixo são exemplos de países cujo mercado possui bom potencial para ser explorado.
     '''
@@ -258,7 +332,7 @@ with tab2:
     
     https://data.worldbank.org/indicator/NY.GDP.MKTP.CD
     
-    O PIB (GDP) per capita é o produto interno bruto dividido pela população no meio do ano.
+    O PIB per capita é o produto interno bruto dividido pela população no meio do ano.
     
     Ele é calculado através da soma do valor bruto adicionado por todos os produtores residentes na economia mais quaisquer impostos sobre produtos e menos quaisquer subsídios não incluídos no valor dos produtos. É calculado sem fazer deduções para depreciação de ativos fabricados ou para esgotamento e degradação de recursos naturais.
     
@@ -294,7 +368,7 @@ with tab2:
     if is_exibir_exp_pib:
         st.dataframe(df_exportacao_pais_top_x_pib_sorted, use_container_width=True, hide_index=True)
         csv = df_exportacao_pais_top_x_pib_sorted.to_csv(index=False)
-        st.download_button(label='Download PIB Top Importadores (CSV)', data=csv, file_name='exp_top_pib.csv', mime='text/csv')
+        st.download_button(label='Download (CSV)', data=csv, file_name='exp_top_pib.csv', mime='text/csv')
         
     #Opcao com botao - Tem que ajustar para ter mais de um botão
     #if 'button' not in st.session_state:
@@ -352,11 +426,15 @@ with tab2:
 
     is_exibir_ins_pib = st.checkbox('Tabela Insights PIB')
     if is_exibir_ins_pib:
-        st.dataframe(df_pib_paises_avg_30k_not_exp, use_container_width=True)
+        st.dataframe(df_pib_paises_avg_30k_not_exp, use_container_width=True, hide_index=True)
         csv = df_pib_paises_avg_30k_not_exp.to_csv(index=False)
-        st.download_button(label='Download Insights PIB (CSV)', data=csv, file_name='insights_pib.csv', mime='text/csv')
+        st.download_button(label='Download (CSV)', data=csv, file_name='insights_pib.csv', mime='text/csv')
 
 with tab3:
+    #Dados
+    df_dados_climaticos_media_mes = pd.read_csv('./dados/dados_climaticos_rs_media_mes_versao_final.csv')
+    df_dados_climaticos_media_ano = pd.read_csv('./dados/dados_climaticos_rs_media_ano_versao_final.csv')
+    
     '''
     ## Dados Climáticos
     
@@ -843,7 +921,7 @@ with tab4:
     
     Com o objetivo de realizar prospecções interessantes para a empresa e entender os mercados mais fortes para se posicionar, o primeiro passo realizado pela equipe foi o aprofundamento nas bases de dados brasileiras relativas a vinho.
     
-    Foi definido como base principal a Embrapa e analisados os dados de viticultura disponíveis em:
+    Foi definido como base principal a Embrapa e analisados os dados de vitivinicultura disponíveis em:
     
     http://vitibrasil.cnpuv.embrapa.br/index.php?opcao=opt_01
     
@@ -858,8 +936,8 @@ with tab4:
     is_exibir_desc_stats_ano = st.checkbox('Estatísticas Descritivas - Ano')
     if is_exibir_desc_stats_ano:
         st.table(desc_stats_ano)
-        csv = df_pib_paises_avg_30k_not_exp.to_csv(index=False)
-        st.download_button(label='Download Estatísticas Descritivas - Ano (CSV)', data=csv, file_name='desc_stats_ano.csv', mime='text/csv')
+        csv = desc_stats_ano.to_csv(index=False)
+        st.download_button(label='Download (CSV)', data=csv, file_name='desc_stats_ano.csv', mime='text/csv')
     
     
     '''
@@ -868,8 +946,8 @@ with tab4:
     is_exibir_desc_stats_pais = st.checkbox('Estatísticas Descritivas - País')
     if is_exibir_desc_stats_pais:
         st.table(desc_stats_pais)
-        csv = df_pib_paises_avg_30k_not_exp.to_csv(index=False)
-        st.download_button(label='Download Estatísticas Descritivas - País (CSV)', data=csv, file_name='desc_stats_pais.csv', mime='text/csv')
+        csv = desc_stats_pais.to_csv(index=False)
+        st.download_button(label='Download (CSV)', data=csv, file_name='desc_stats_pais.csv', mime='text/csv')
     
     
     '''
@@ -1135,17 +1213,22 @@ with tab4:
     '''
     Agora, estamos ciente dos dados atuais. Sabemos que a Rússia se destaca na quantidade comprada e possui picos em alguns anos, não demonstrando uma tendência de crescimento. Já o Paraguai - país com maior valor gasto - por outro lado, mostra uma tendência de crescimento nos últimos anos.
     
-    Alguns outros países como Espanha e China também tiveram picos de compra em quantidades, contudo, os mdemais países seguem uma certa tendência. 
+    Alguns outros países como Espanha e China também tiveram picos de compra em quantidades, contudo, os demais países seguem uma certa tendência. 
     '''
     
     
 with tab5:
     fontes_markdown = '''
-        # Fontes:
+        ## Fontes
 
-        
         **Dados da Vitivinicultura**  
-        http://vitibrasil.cnpuv.embrapa.br/index.php?opcao=opt_01 
+        http://vitibrasil.cnpuv.embrapa.br/index.php?opcao=opt_01
+        
+        **Dados Demográficos**  
+        https://population.un.org/wpp/
+        
+        **Dados Econômicos**  
+        https://data.worldbank.org/indicator/NY.GDP.MKTP.CD
 
         **INMET: Instituto Nacional de Meteorologia**  
         https://portal.inmet.gov.br/  
@@ -1163,5 +1246,3 @@ with tab5:
     '''
     
     st.markdown(fontes_markdown)
-   
-   
