@@ -451,7 +451,6 @@ with tab3:
     
     '''
     ## Temperatura
-    ### Temperatura Média no Rio Grande do Sul    
     '''
     
     # Criar o gráfico
