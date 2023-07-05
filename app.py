@@ -434,7 +434,8 @@ with tab3:
     #Dados
     df_dados_climaticos_media_mes = pd.read_csv('./dados/dados_climaticos_rs_media_mes_versao_final.csv')
     df_dados_climaticos_media_ano = pd.read_csv('./dados/dados_climaticos_rs_media_ano_versao_final.csv')
-    
+    df_dados_climaticos_media_estacoes = pd.read_csv('./dados/dados_climaticos_rs_media_estacoes_versao_final.csv')
+
     '''
     ## Dados Climáticos
     
@@ -442,21 +443,15 @@ with tab3:
     
     Contudo, faz-se extremamente necessário analisar as variações climáticas, para que ações relativas ao manejo das videiras sejam tomadas de modo que a produção, qualidade das uvas e, consequentemente, o comércio interno e de exportação não sejam afetados.
     
+    O clima é um fator importante para a vitivinicultura, e o conhecimento desses dados viabiliza que cada etapa deste processo seja distribuída em momentos mais adequados em termos climáticos para o cultivo, produção, armazenamento e venda/exportação.
+
     '''
-    
     
     # -----------------------------------------------------------------------------------------------------------------------------
     
     '''
     ## Temperatura
-    
-    O Rio Grande do Sul apresenta uma temperatura média compensada que varia entre  12°C a 24°C, dependendo da localização específica. 
-    
-    Através da análise do gráfico abaixo, podemos constatar que durante o verão (dezembro a fevereiro), as temperaturas médias mínima e máxima variam entre 17°C a 30°C. No inverno (junho a agosto), as temperaturas médias mínima e máxima caem consideravelmente e variam entre 8°C a 21°C. Já no outono (março a maio) e na primavera (setembro a novembro) variam entre 11°C a 28°C.
-    
-    Contudo, durante o verão, ondas de calor podem ocorrer, causando desidratação e estresse térmico nas videiras. No inverno, as geadas ocasionadas por temperaturas abaixo de zero, podem danificar as plantas e reduzir a produtividade.
-    
-    
+    ### Temperatura Média no Rio Grande do Sul    
     '''
     
     # Criar o gráfico
@@ -550,7 +545,28 @@ with tab3:
     # Renderizar o gráfico utilizando o Streamlit
     st.plotly_chart(fig_dc_2, use_container_width=True)
     
+    '''
+    Através da análise do gráfico acima nota-se que as médias se comportam de maneira semelhante ao longo do ano e estão em uma faixa que caracteriza a região do Rio Grande do Sul com [**clima temperado**](https://pt.wikipedia.org/wiki/Clima_temperado) favorecendo bastante a vitivinicultura.
+    - **Temperatura Média Compensada**: Varia entre  12°C a 24°C, dependendo da localização específica.
+    - **Temperatura Média Mínima e Máxima** estão entre faixas representadas na tabela, por estação do ano:
+    '''
+    st.dataframe(df_dados_climaticos_media_estacoes, use_container_width=True, hide_index=True)
+    '''    
+    De acordo com a publicação ["A vitinicultura brasileira: realidade e perspectivas"](https://www.embrapa.br/busca-de-publicacoes/-/publicacao/1052798/a-vitivinicultura-brasileira-realidade-e-perspectivas) (autoria: PROTAS, J. F. da S.; CAMARGO, U. A.; MELLO, L. M. R. de) realizada pela [EMBRAPA](https://www.embrapa.br/sobre-a-embrapa), sabe-se que apesar de o clima temperado favorecer bastante a vitivinicultura cada estação possui sua característica:
+    - **Verão**: Climas mais quentes estão sujeitos a ondas de calor, o que pode causar:
+      - Desidratação e estresse térmico nas videiras, produzindo uma maturação precoce com menor acidez, menor complexidade aromática e menor teor alcoólico, diminuindo também a produção
+      - Aumenta o custo de armazenamento de diversos tipos de vinhos que necessitam de climas frios para esse fim.
+    - **Inverno**: Há a possibilidade de geadas ocasionadas por temperaturas abaixo de zero, o que pode:
+      - Danificar as plantas e reduzir a produtividade, ou mesmo produzir uma maturação tardia das uvas, diminuindo a concentração de açúcares e aromas.
+      - Por outro lado, em casos menos extremos pode amenizar o custo com refrigeração artificial
     
+    **Recomendações:**
+    - O clima local possibilita de 2 a 3 ciclos vegetativos por ano. Realizar podas sucessivas evitando o acúmulo especialmente nas estações com climas mais extremos
+    - Considerar custo com refrigeração artificial em épocas mais quentes
+    - Evitar alto volume de plantio e cultivo inicial nas estações Verão e Inverno
+    - Utilizar estações Outono e Primavera, com climas mais equilibrados, para o maior volume de cultivo e armazenamento
+
+    '''
     
    # ----------------------------------------------------------------------------------------------------------------------------- 
         
@@ -558,13 +574,24 @@ with tab3:
     ## Precipitação
     
     A precipitação no Rio Grande do Sul é bem distribuída ao longo do ano, porém apresenta algumas variações sazonais significativas.
-         
-    Através da análise do gráfico abaixo, podemos constatar que as estações mais chuvosas são a primavera (setembro à novembro) e o verão (dezembro à fevereiro), 
-    com precipitação média mensal variando entre 120mm à 200mm. O inverno (junho à agosto) apresenta níveis intermediários de precipitação variando entre 120mm à 150mm.
-    Enquanto no outono (março à maio), a precipitação é menor, variando entre 100mm à 150mm. O outono corresponde ao período de seca no estado.
+
+    | Estação  | Meses                  | Precipitação média mensal (mm) |
+    |----------|------------------------|--------------------------------|
+    | Primavera| Setembro à Novembro    | entre 120 e 200                |
+    | Verão    | Dezembro à Fevereiro   | entre 120 e 200                |
+    | Inverno  | Junho à Agosto         | entre 120 e 150                |
+    | Outono   | Março à Maio           | entre 100 e 150                |
     
-    Contudo, é importante ressaltar que o Rio Grande do Sul apresenta episódios de chuvas intensas, especialmente no verão, que causam encharcamento do solo, afetando assim a saúde das videiras e contribuindo para o aumento do risco de doenças, como exemplo doenças fúngicas (míldio, oídio e mofo-cinzento) e bacterianas. 
+    '''
+    st.markdown("")
+    '''
+    A tabela acima revela padrões interessantes de precipitação no decorrer do ano. As estações mais chuvosas são a Primavera e o Verão, enquanto o Inverno apresenta níveis intermediários de precipitação e o Outono corresponde ao período de seca no estado.
     
+    Contudo, é importante ressaltar que o Rio Grande do Sul apresenta **episódios de chuvas intensas, especialmente no verão**, que causam encharcamento do solo, afetando assim a saúde das videiras e contribuindo para o aumento do risco de doenças, como exemplo doenças fúngicas (míldio, oídio e mofo-cinzento) e bacterianas.
+
+    **Recomendações:**
+    - Importante evitar o acúmulo de plantio e cultivo no verão devido ao risco de alagamento, reforçando as percepções encontradas na análise climática
+    - Considerar possível custo adicional com irrigação das videiras durante o Outono
     '''
     
     # Criar o gráfico
@@ -655,7 +682,7 @@ with tab3:
 
     # Renderizar o gráfico utilizando o Streamlit
     st.plotly_chart(fig_dc_2, use_container_width=True)
-    
+
     # -----------------------------------------------------------------------------------------------------------------------------    
     
     '''
@@ -663,7 +690,13 @@ with tab3:
     
     A umidade relativa do ar no Rio Grande do Sul possui médias anuais que variam entre 70% a 90%, devido a proximidade do oceano Atlântico e pela circulação de massas de ar úmidas.
     
-    Ela desempenha um papel crucial durante todo o ciclo de cultivo da videira, influenciando tanto os aspectos fisiológicos da planta quanto a ocorrência de doenças causadas por fungos e bactérias. Quando a umidade relativa do ar é alta, isso tende a promover o crescimento de ramos mais vigorosos, acelerar a brotação das folhas e contribuir para uma vida útil prolongada da planta. No entanto, se essa alta umidade estiver combinada com temperaturas elevadas, há um aumento significativo na incidência de doenças fúngicas e bacterianas. Essas condições propiciam um ambiente mais favorável para a proliferação dessas doenças, representando um desafio para a saúde da videira ao longo do seu ciclo de crescimento. (Fonte: Sistema de Produção - Cultivo da Videira)
+    Ela desempenha um papel crucial durante todo o ciclo de cultivo da videira. Ela influencia tanto os aspectos fisiológicos da planta quanto a ocorrência de doenças causadas por fungos e bactérias.
+
+    Quando a **umidade relativa do ar é alta**, isso tende a promover o crescimento de **ramos mais vigorosos**, acelerar a **brotação das folhas** e contribuir para uma **vida útil prolongada da planta**.
+
+    No entanto, se essa alta umidade estiver combinada com **temperaturas elevadas**, há um aumento significativo na **incidência de doenças fúngicas e bacterianas**. Essas condições propiciam um ambiente mais favorável para a **proliferação dessas doenças**, representando um desafio para a saúde da videira ao longo do seu ciclo de crescimento.
+    
+    Fonte: [Sistema de Produção - Cultivo da Videira (EMBRAPA)](https://ainfo.cnptia.embrapa.br/digital/bitstream/item/112196/1/Cultivo-da-videira-32070.pdf)
     '''
     
     
@@ -762,8 +795,11 @@ with tab3:
     '''
     ## Padrões Sazonais
     
-    Conforme podemos observar no gráfico abaixo, o estado do Rio Grande do Sul experimenta as quatro estações do ano de forma bem definida. O outono (março a maio) é caracterizado por temperaturas amenas e queda na quantidade de chuvas. No inverno (junho a agosto), as temperaturas 
-    são mais baixas e podem ocorrer geadas. Na primavera (setembro a novembro), as temperaturas começam a subir e a precipitação é intensa. No verão (dezembro a fevereiro), as temperaturas são mais elevadas e podem ocorrer episódios de chuvas intensas.   
+    Conforme podemos observar no gráfico abaixo, o estado do Rio Grande do Sul experimenta as quatro estações do ano de forma bem definidas:
+     - **outono (março a maio)**: Caracterizado por temperaturas amenas e queda na quantidade de chuvas.
+     - **inverno (junho a agosto)**: Tem temperaturas mais baixas e podem ocorrer geadas.
+     - **primavera (setembro a novembro)**: A temperatura começa a subir e a precipitação é intensa.
+     - **verão (dezembro a fevereiro)**: A temperatura é mais elevada e podem ocorrer episódios de chuvas intensas.
     
     
     '''
@@ -887,8 +923,9 @@ with tab3:
     
     5. Investimento em tecnologias e práticas de manejo que ajudem a mitigar os efeitos do estresse térmico nas vinhas, como a proteção contra radiação solar excessiva.
     
+    6. Adequar o Ciclo Operacional da Vitivinicultura de acordo com as estações, reservando orçamento para aplicações específicas de cada estação. Além dos itens listados acima, concentrar a maior parte do plantio, cultivo e armazenamento no outono e primavera, preparando-se para os riscos do verão e inverno.
     
-    É importante ressaltar que o monitoramento dos dados climáticos e as ações para a gestão adequada dos riscos associados à produção de vinho serão contínuos, uma vez que fenômenos como o aquecimento global e o El Niño podem influenciar drasticamente as previsões climáticas de longo prazo.   
+    É importante ressaltar que o monitoramento dos dados climáticos e as ações para a gestão adequada dos riscos associados à produção de vinho serão contínuos, uma vez que fenômenos como o [aquecimento global](https://pt.wikipedia.org/wiki/Aquecimento_global) e o [El Niño](https://pt.wikipedia.org/wiki/El_Ni%C3%B1o) podem influenciar drasticamente as previsões climáticas de longo prazo.   
     
     ''' 
     
