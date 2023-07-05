@@ -304,7 +304,7 @@ with tab1:
 
 
     '''
-    ### TODOS...
+    ### AÇÕES...
     E se buscarmos simultaneamente de acordo com os 2 últimos indicadores?
     - Idade média da população maior ou igual a 36 anos;
     - Expectativa de vida maior ou igual a 77 anos;
