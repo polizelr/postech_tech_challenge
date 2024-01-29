@@ -21,4 +21,4 @@ streamlit run .\app.py
 
 ## Versão publicada
 
-https://postechtechchallenge-m4w8niw21d.streamlit.app/
+https://techchallenge04petroleobrent-ifurrm3paaqwnu7synhxy7.streamlit.app/
